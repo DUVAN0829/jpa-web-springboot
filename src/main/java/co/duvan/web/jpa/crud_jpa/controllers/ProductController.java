@@ -1,5 +1,6 @@
 package co.duvan.web.jpa.crud_jpa.controllers;
 
+import java.lang.foreign.Linker.Option;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +53,13 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<Product> update(@PathVariable Long id, @RequestBody Product product) {
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.save(product));
+        Optional<Product> produOptional = service.update(product, id);
+
+        if(produOptional.isPresent()) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(produOptional.orElseThrow());
+        }
+
+        return ResponseEntity.notFound().build();
 
     }
 

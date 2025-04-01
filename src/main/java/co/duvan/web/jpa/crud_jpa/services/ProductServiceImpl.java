@@ -18,7 +18,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     @Override
     public Iterable<Product> findAll() {
-       return repository.findAll();
+        return repository.findAll();
     }
 
     @Transactional(readOnly = true)
@@ -30,7 +30,29 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     @Override
     public Product save(Product product) {
-       return repository.save(product);
+        return repository.save(product);
+    }
+
+    @Override
+    @Transactional
+    public Optional<Product> update(Product product, Long id) {
+
+        Optional<Product> optionalProduct = findById(id);
+
+        if (optionalProduct.isPresent()) {
+
+            Product productDb = optionalProduct.get();
+
+            productDb.setName(product.getName());
+            productDb.setPrice(product.getPrice());
+            productDb.setDescription(product.getDescription());
+
+            return Optional.of(repository.save(productDb));
+
+        }
+
+        return optionalProduct;
+
     }
 
     @Transactional
@@ -44,6 +66,6 @@ public class ProductServiceImpl implements ProductService {
         });
 
         return productOptional;
-    }   
+    }
 
 }
