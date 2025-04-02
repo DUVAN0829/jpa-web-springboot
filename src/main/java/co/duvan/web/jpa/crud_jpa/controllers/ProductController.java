@@ -1,11 +1,13 @@
 package co.duvan.web.jpa.crud_jpa.controllers;
 
-import java.lang.foreign.Linker.Option;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.duvan.web.jpa.crud_jpa.entities.Product;
 import co.duvan.web.jpa.crud_jpa.services.ProductService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/products")
@@ -44,18 +47,27 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<Product> create(@RequestBody Product product) {
+    public ResponseEntity<?> create(@Valid @RequestBody Product product, BindingResult result) {
+
+        if (result.hasFieldErrors()) {
+            return validation(result);
+        }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(service.save(product));
 
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> update(@PathVariable Long id, @RequestBody Product product) {
+    public ResponseEntity<?> update(@Valid @PathVariable Long id, @RequestBody Product product,
+            BindingResult result) {
+
+        if (result.hasFieldErrors()) {
+            return validation(result);
+        }
 
         Optional<Product> produOptional = service.update(product, id);
 
-        if(produOptional.isPresent()) {
+        if (produOptional.isPresent()) {
             return ResponseEntity.status(HttpStatus.CREATED).body(produOptional.orElseThrow());
         }
 
@@ -74,6 +86,17 @@ public class ProductController {
 
         return ResponseEntity.notFound().build();
 
+    }
+
+    private ResponseEntity<?> validation(BindingResult result) {  
+
+        Map<String, String> errors = new HashMap<>();
+
+        result.getFieldErrors().forEach(err -> {
+            errors.put(err.getField(), " el campo " + err.getField() + " " + err.getDefaultMessage());
+        });;
+
+        return ResponseEntity.badRequest().body(errors);
     }
 
 }
