@@ -25,14 +25,17 @@ import jakarta.validation.Valid;
 @RequestMapping("/products")
 public class ProductController {
 
+    // *Vars */
     @Autowired
     private ProductService service;
 
+    // *List */
     @GetMapping
     public Iterable<Product> list() {
         return service.findAll();
     }
 
+    // *FindById */
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
 
@@ -46,6 +49,7 @@ public class ProductController {
 
     }
 
+    // *Create */
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody Product product, BindingResult result) {
 
@@ -57,6 +61,7 @@ public class ProductController {
 
     }
 
+    // *Update */
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@Valid @PathVariable Long id, @RequestBody Product product,
             BindingResult result) {
@@ -75,6 +80,7 @@ public class ProductController {
 
     }
 
+    // *Delete */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
 
@@ -88,13 +94,15 @@ public class ProductController {
 
     }
 
-    private ResponseEntity<?> validation(BindingResult result) {  
+    // *Metod validation */
+    private ResponseEntity<?> validation(BindingResult result) {
 
         Map<String, String> errors = new HashMap<>();
 
         result.getFieldErrors().forEach(err -> {
             errors.put(err.getField(), " el campo " + err.getField() + " " + err.getDefaultMessage());
-        });;
+        });
+        ;
 
         return ResponseEntity.badRequest().body(errors);
     }
